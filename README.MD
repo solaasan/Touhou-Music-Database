@@ -71,7 +71,8 @@ Below is a sample SQL query to find all Nuclear Fusion songs based on Okuu's the
 SELECT
     tracks.name AS track_name,
     release_circle_index.name AS album_artist,
-    albums_index.album_name
+    albums_index.album_name,
+    albums_index.url_links
 FROM
     tracks
     INNER JOIN track_vs_source_index ON tracks.id = track_vs_source_index.track_id
@@ -92,3 +93,36 @@ OR tlmc_path = '';
 ```
 
 [Sample results](sample_query/tlmc.csv) of this query are available as a CSV.
+
+## Using the Database with SQLite Viewer
+
+If you are not familiar with technical tools like SQL, you can still use this database using an online SQLite viewer. Follow these steps:
+
+1. Go to https://inloop.github.io/sqlite-viewer/.
+2. Drag the database file into the browser window.
+3. Copy and paste the following query into the textbox:
+
+```sql
+SELECT * FROM 'source_tracks' LIMIT 0,1528
+```
+4. Click execute, use Ctrl + F to find the theme you want. Do note these are the Japanese Names.
+5. Refer to the sample query provided just above and as well below for Nuclear Fusion, that uses `120` however update the number for the one you would wish to reverse search:
+
+```sql
+SELECT
+    tracks.name AS track_name,
+    release_circle_index.name AS album_artist,
+    albums_index.album_name,
+    albums_index.url_links
+FROM
+    tracks
+    INNER JOIN track_vs_source_index ON tracks.id = track_vs_source_index.track_id
+    INNER JOIN source_tracks ON track_vs_source_index.source_track_id = source_tracks.id
+    INNER JOIN release_circle_index ON tracks.release_circle_id = release_circle_index.id
+    INNER JOIN albums_index ON tracks.album_id = albums_index.id
+WHERE
+    source_tracks.id = 120;
+```
+
+5. Click "Execute SQL" to run the query, and the resulting table will display all the relevant songs. If you are using a macOS, you can easily copy and paste the results into a spreadsheet for further review. Other opperating systems likely the same.
+
