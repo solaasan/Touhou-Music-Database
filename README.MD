@@ -26,7 +26,7 @@ The database schema is as follows:
     - `id`: Integer, primary key, autoincrement
     - `album_name`: Text, not null
     - `url_links`: Text
-    - `tlmc_path`: Text, not null
+    - `tlmc_path`: Text
     - `genre`: Text
     - `disc_number`: Integer
 
