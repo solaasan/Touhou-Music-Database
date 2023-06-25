@@ -80,7 +80,9 @@ FROM
     INNER JOIN release_circle_index ON tracks.release_circle_id = release_circle_index.id
     INNER JOIN albums_index ON tracks.album_id = albums_index.id
 WHERE
-    source_tracks.id = 120;
+    source_tracks.id = 120
+ORDER BY
+    album_artist;
 ```
 
 or a query to display all albums I was not able to succesfully match with TLMC v3:
@@ -121,7 +123,9 @@ FROM
     INNER JOIN release_circle_index ON tracks.release_circle_id = release_circle_index.id
     INNER JOIN albums_index ON tracks.album_id = albums_index.id
 WHERE
-    source_tracks.id = 120;
+    source_tracks.id = 120
+ORDER BY
+    album_artist;
 ```
 
 5. Click "Execute SQL" to run the query, and the resulting table will display all the relevant songs. If you are using a macOS, you can easily copy and paste the results into a spreadsheet for further review. Other opperating systems likely the same.
