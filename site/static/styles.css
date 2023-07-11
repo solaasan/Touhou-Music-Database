@@ -1,0 +1,84 @@
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #000;
+    color: #0f0;
+    padding: 20px;
+    position: relative;
+    min-height: 100vh;  
+
+}
+
+input {
+    background-color: #303030;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 5px;
+}
+
+input[type="submit"], button {
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+input[type="submit"]:hover, button:hover {
+    background-color: #0f0;
+    color: #000;
+}
+
+table, th, tr, td {
+    border: 1px solid #0f0;
+    border-collapse: collapse;
+    padding: 10px;
+}
+
+table {
+    margin: 20px 0;
+    width: 100%;
+}
+
+table tr:hover {
+    background-color: #303030;
+}
+
+table tr:hover td {
+    box-shadow: inset 0 0 10px #0f0;
+}
+
+th {
+    color: #f00;
+    text-transform: uppercase;
+}
+
+a {
+    color: #0ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+h1 {
+    color: #f00;
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.rotating-text {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #0f0;
+    animation: rotate 5s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: translateX(-50%) rotate(0deg);
+    }
+    to {
+        transform: translateX(-50%) rotate(360deg);
+    }
+}

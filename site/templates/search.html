@@ -1,0 +1,29 @@
+<!-- search.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<h1>Touhou.media Database</h1>
+<form method="POST">
+  <input name="source_track_id" placeholder="Enter Source Track ID">
+  <input type="submit" value="Search Tracks">
+</form>
+<table>
+  <tr>
+    <th>Source Track ID</th>
+    <th>Source Track Name</th>
+    <th>Number of Tracks</th>
+  </tr>
+  {% for source_track in source_tracks %}
+  <tr>
+    <td><a href="#" onclick="document.getElementsByName('source_track_id')[0].value = '{{ source_track[0] }}'">{{ source_track[0] }}</a></td>
+    <td>{{ source_track[1] }}</td>
+    <td>{{ source_track[2] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<div class="rotating-text">Graffic Design is my Passion</div>
+</body>
+</html>
