@@ -1,8 +1,10 @@
-# Touhou Doujinshi Music Database v0.69
+# Touhou.media Doujinshi Music Database v0.69
 
-This database is a project to enable reverse searching through any and all Touhou doujinshi music releases found online. It contains a normalized SQLite3 database with some album metadata. The main purpose is to look up a song and find the source ZUN/Touhou tracks it originates from or vice versa. If you're searching for actual metadata on albums, visit [TouhouDB](https://touhoudb.com/). The scraping of this data was made possible thanks to GPT-4 and a number of open source projects surrounding it.
+This database is a project to enable reverse searching through any and all Touhou doujinshi music releases found online. It contains a normalized SQLite3 database with some album metadata. The main purpose is to look up a song and find the source ZUN/Touhou tracks it originates from or vice versa. 
 
-The database schema is as follows:
+A basic implementation of this database is accessible at [Touhou.media](https://touhou.media) , the sourcecode to it is available in the [site](site) folder.
+
+For more technical users, the database schema is as follows:
 
 ## Database Schema
 
