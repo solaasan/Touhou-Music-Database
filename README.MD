@@ -4,7 +4,10 @@ This database is a project to enable reverse searching through any and all Touho
 
 A basic implementation of this database is accessible at [Touhou.media](https://touhou.media) , the sourcecode to it is available in the [site](site) folder.
 
-For more technical users, the database schema is as follows:
+# Important Notice
+I would like to remind everyone that this Database is strictly for sharing official content from the artists. There is to be no illegal sharing of content in this. Any provided links should be directly linked to the artists' official pages.
+このデータベースは、アーティストによる公式コンテンツの共有を目的としております。違法なダウンロードリンクの共有はご遠慮ください。代わりに、共有するリンクはアーティストの公式ウェブページに直接つながるものであるべきです。
+
 
 ## Database Schema
 
@@ -61,7 +64,7 @@ Similarly, `track_vs_source_index` table is used to maintain the one-to-many rel
 
 If an album exists in the [TLMC v3](https://nyaa.si/view/1625916), I have attempted to indicate its location. The matching logic for this search is stored in [tlmc_searcher.py](misc_scripts/tlmc_searcher.py). Neither this GitHub repository nor myself have any relation to that collection or the wonderful folks behind it. This was collected based on personal interests.
 
-### Disclaimer
+### Quality Disclaimer
 
 source_track metadata has some funny values in the lowest percentile, still deciding how to manage that such as to remove outlier values. Some "source_tracks" in the low single digit occurances are non-touhou tracks, ie Kirby or Undertale.
 

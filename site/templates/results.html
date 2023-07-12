@@ -12,15 +12,15 @@
 <table>
   <tr>
     <th>Track Name</th>
-    <th>Track Artist</th>  <!-- Moved track artist before album artist -->
+    <th>Track Artist</th>
     <th>Album Artist</th>
     <th>Album Name</th>
-    <th>URL</th>
+    <th>Album URL</th>
   </tr>
   {% for result in results %}
   <tr>
     <td>{{ result[0] }}</td>
-    <td>{{ result[1] }}</td>  <!-- Moved track artist before album artist -->
+    <td>{{ result[1] }}</td>
     <td>{{ result[2] }}</td>
     <td>{{ result[3] }}</td>
     <td><a href="{{ result[4] }}">Link</a></td>
