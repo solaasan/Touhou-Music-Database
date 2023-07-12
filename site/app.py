@@ -99,7 +99,7 @@ def search2():
                 )   
             )
             fetched_results = results.fetchall()
-            flask_session['fetched_results'] = [list(r) for r in fetched_results]
+            flask_session['fetched_results'] = [[r if i!=4 else 'Not Available' for i, r in enumerate(row)]  for row in fetched_results]
         return render_template('results.html', results=fetched_results)
     else:
         with Session() as session:

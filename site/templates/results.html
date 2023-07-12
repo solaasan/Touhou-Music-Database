@@ -23,7 +23,7 @@
     <td>{{ result[1] }}</td>
     <td>{{ result[2] }}</td>
     <td>{{ result[3] }}</td>
-    <td><a href="{{ result[4] }}">Link</a></td>
+    <td>{% if result[4] %}<a href="{{ result[4] }}">Link</a>{% else %}Not Available{% endif %}</td>
   </tr>
   {% endfor %}
 </table>
