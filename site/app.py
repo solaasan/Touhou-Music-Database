@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy import Column, Integer, Text, ForeignKey
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func, desc
+import requests
 
 Base = declarative_base()
 
@@ -120,4 +121,17 @@ def search2():
         return render_template('search.html', source_tracks=source_tracks)
 
 if __name__ == '__main__':
+    # Check if the file exists
+    if not os.path.isfile('touhou-music.db'):
+        url = 'https://raw.githubusercontent.com/solaasan/Touhou-Music-Database/main/touhou-music.db'
+        print('Downloading file %s' % url)
+        r = requests.get(url, allow_redirects=True)
+        if r.status_code == 200:
+            with open('touhou-music.db', 'wb') as dbfile:
+                dbfile.write(r.content)
+        else:
+            print('Failed to download %s' % url)
+    else:
+        print('Database file exists, skipping download')
+
     app.run(host='localhost', port=8050) 
