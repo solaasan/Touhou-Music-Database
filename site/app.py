@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy import Column, Integer, Text, ForeignKey
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func, desc
+import re
 
 Base = declarative_base()
 
@@ -49,32 +50,63 @@ class Tracks(Base):
     songtrack_artist_id = Column(Integer, ForeignKey('songtrack_artist_index.id'))
 
 app = Flask(__name__)
-app.config['CSV_FILENAME'] = "results.csv"  
-app.config['SESSION_PERMANENT'] = False  
-app.config['SESSION_TYPE'] = 'filesystem' 
+app.config['CSV_FILENAME'] = "results.csv"
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-@app.route('/download_csv', methods=['GET'])
-def download_csv():
+@app.route('/download_csv/<int:source_track_id>', methods=['GET'])
+def download_csv(source_track_id):
+    if source_track_id > 9999:
+        return render_template('error.html', message="Invalid input. Please enter upto 4 numbers.")
+    engine = create_engine("sqlite:///touhou-music.db")
+    Session = sessionmaker(bind=engine)
+    with Session() as session:
+        results = session.execute(
+            session.query(
+                Tracks.name,
+                SongTrackArtistIndex.name,
+                ReleaseCircleIndex.name,
+                AlbumsIndex.album_name,
+                AlbumsIndex.url_links,
+                AlbumsIndex.genre
+            ).join(
+                TrackVsSourceIndex, Tracks.id == TrackVsSourceIndex.track_id
+            ).join(
+                SourceTracks, TrackVsSourceIndex.source_track_id == SourceTracks.id
+            ).join(
+                SongTrackArtistIndex, Tracks.songtrack_artist_id == SongTrackArtistIndex.id
+            ).join(
+                ReleaseCircleIndex, Tracks.release_circle_id == ReleaseCircleIndex.id
+            ).join(
+                AlbumsIndex, Tracks.album_id == AlbumsIndex.id
+            ).filter(
+                SourceTracks.id == source_track_id
+            ).order_by(
+                ReleaseCircleIndex.name
+            )   
+        )
+        fetched_results = results.fetchall()
     csv_file = StringIO()
     writer = csv.writer(csv_file)
-    writer.writerow(['Track Name', 'Track Artist', 'Album Artist', 'Album Name', 'URL'])
-    if 'fetched_results' in flask_session:
-       writer.writerows(flask_session['fetched_results'])
+    writer.writerow(['Track Name', 'Track Artist', 'Album Artist', 'Album Name', 'URL', 'Album Genre'])  # This line is edited
+    writer.writerows(fetched_results)
     csv_file.seek(0)
     response = make_response(csv_file.getvalue())
     cd = 'attachment; filename=' + app.config['CSV_FILENAME']
     response.headers.set('Content-Disposition', 'attachment', filename=app.config['CSV_FILENAME'])
     response.mimetype='text/csv'
     return response
+    
 
 @app.route('/', methods=['GET', 'POST'])
 def search2():
     engine = create_engine("sqlite:///touhou-music.db")
     Session = sessionmaker(bind=engine)
-    if request.method == 'POST':
+    query = request.args.get('query', '')
+    if query.isdigit() and len(query) <= 4:
+        source_track_id = query
         with Session() as session:
-            source_track_id = request.form['source_track_id']
             results = session.execute(
                 session.query(
                     Tracks.name,
@@ -82,6 +114,7 @@ def search2():
                     ReleaseCircleIndex.name,
                     AlbumsIndex.album_name,
                     AlbumsIndex.url_links,
+                    AlbumsIndex.genre
                 ).join(
                     TrackVsSourceIndex, Tracks.id == TrackVsSourceIndex.track_id
                 ).join(
@@ -99,8 +132,8 @@ def search2():
                 )   
             )
             fetched_results = results.fetchall()
-            flask_session['fetched_results'] = [[r if i!=4 else 'Not Available' for i, r in enumerate(row)]  for row in fetched_results]
-        return render_template('results.html', results=fetched_results)
+            flask_session['fetched_results'] = [[r if i!=5 else 'Not Available' for i, r in enumerate(row)]  for row in fetched_results]  # This line is edited
+        return render_template('results.html', results=fetched_results, query=source_track_id)
     else:
         with Session() as session:
             source_tracks = session.execute(
@@ -120,4 +153,4 @@ def search2():
         return render_template('search.html', source_tracks=source_tracks)
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=8050) 
+    app.run(host='localhost', port=8050)
