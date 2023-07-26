@@ -21,7 +21,7 @@
   </tr>
   {% for source_track in source_tracks %}
   <tr>
-    <td><a href="#" onclick="document.getElementsByName('source_track_id')[0].value = '{{ source_track[0] }}'">{{ source_track[0] }}</a></td>
+    <td><a href="#" onclick="document.getElementsByName('query')[0].value = '{{ source_track[0] }}'">{{ source_track[0] }}</a></td>
     <td>{{ source_track[1] }}</td>
     <td>{{ source_track[2] }}</td>
   </tr>
