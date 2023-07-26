@@ -9,9 +9,9 @@
 </head>
 <body>
 <h1>Touhou.media Database</h1>
-<form method="POST">
-  <input name="source_track_id" placeholder="Enter Source Track ID">
-  <input type="submit" value="Search Tracks">
+<form action="{{ url_for('search2') }}" method="get">
+    <input type="text" name="query" placeholder="Enter your search term..." pattern="\d{1,4}" required title="Please enter upto 4 numbers.">
+    <input type="submit" value="Search">
 </form>
 <table>
   <tr>

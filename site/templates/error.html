@@ -1,0 +1,16 @@
+<!-- error.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<form action="/" method="get">
+    <button type="submit">Back</button>
+</form>
+<h2>OOPSIE WOOPSIE!! Uwu someone made a mistake or tried something they weren't supposed to</h2><br><br>
+<h2>Fumos are deciding your fate><br>
+<img src={{ url_for('static', filename='fumocam.webp') }} alt="Fumos pointing a camera at you, suspicious"><br><br>
+<div>{{message}}</div>
+</body>
+</html>
