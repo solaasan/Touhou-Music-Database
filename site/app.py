@@ -69,6 +69,7 @@ def download_csv(source_track_id):
                 ReleaseCircleIndex.name,
                 AlbumsIndex.album_name,
                 AlbumsIndex.url_links,
+                AlbumsIndex.genre
             ).join(
                 TrackVsSourceIndex, Tracks.id == TrackVsSourceIndex.track_id
             ).join(
@@ -88,7 +89,7 @@ def download_csv(source_track_id):
         fetched_results = results.fetchall()
     csv_file = StringIO()
     writer = csv.writer(csv_file)
-    writer.writerow(['Track Name', 'Track Artist', 'Album Artist', 'Album Name', 'URL'])
+    writer.writerow(['Track Name', 'Track Artist', 'Album Artist', 'Album Name', 'URL', 'Album Genre'])  # This line is edited
     writer.writerows(fetched_results)
     csv_file.seek(0)
     response = make_response(csv_file.getvalue())
@@ -113,6 +114,7 @@ def search2():
                     ReleaseCircleIndex.name,
                     AlbumsIndex.album_name,
                     AlbumsIndex.url_links,
+                    AlbumsIndex.genre
                 ).join(
                     TrackVsSourceIndex, Tracks.id == TrackVsSourceIndex.track_id
                 ).join(
@@ -130,7 +132,7 @@ def search2():
                 )   
             )
             fetched_results = results.fetchall()
-            flask_session['fetched_results'] = [[r if i!=4 else 'Not Available' for i, r in enumerate(row)]  for row in fetched_results]
+            flask_session['fetched_results'] = [[r if i!=5 else 'Not Available' for i, r in enumerate(row)]  for row in fetched_results]  # This line is edited
         return render_template('results.html', results=fetched_results, query=source_track_id)
     else:
         with Session() as session:
@@ -151,4 +153,4 @@ def search2():
         return render_template('search.html', source_tracks=source_tracks)
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=8050) 
+    app.run(host='localhost', port=8050)
