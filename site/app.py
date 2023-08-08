@@ -87,7 +87,7 @@ def search_song():
                 ).filter(or_(Tracks.name.like(query),
                              AlbumsIndex.album_name.like(query),
                              ReleaseCircleIndex.name.like(query),
-                             SongTrackArtistIndex.name.like(query)
+                             SongTrackArtistIndex.name.like(query)))       
                 .order_by(
                     ReleaseCircleIndex.name
                 )
