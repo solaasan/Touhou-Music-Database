@@ -13,6 +13,10 @@
     <input type="text" name="query" placeholder="Enter your search term..." pattern="\d{1,4}" required title="Please enter upto 4 numbers.">
     <input type="submit" value="Search">
 </form>
+<form action="{{ url_for('search_song') }}" method="get">
+    <input type="text" name="song" placeholder="Enter song name..." pattern=".{1,40}" required title="Please enter a song name">
+    <input type="submit" value="Search Song">
+</form>
 <table>
   <tr>
     <th>Source Track ID</th>
