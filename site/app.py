@@ -88,6 +88,7 @@ def search_song():
                              AlbumsIndex.album_name.like(query),
                              ReleaseCircleIndex.name.like(query),
                              SongTrackArtistIndex.name.like(query)))       
+
                 .order_by(
                     ReleaseCircleIndex.name
                 )
