@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, make_response, session as flask_session
+from flask import Flask, render_template, request, make_response, session as flask_session, redirect, url_for
 from flask_session import Session
 from io import StringIO
 import csv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import Column, Integer, Text, ForeignKey
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func, desc
@@ -119,35 +120,39 @@ def download_song_csv():
     song_name = request.args.get('song_name', '')
     if song_name != '':
         query = "%{}%".format(song_name)
-        with Session() as session:
-            results = session.query(
-                Tracks.name,
-                SongTrackArtistIndex.name,
-                ReleaseCircleIndex.name,
-                AlbumsIndex.album_name,
-                AlbumsIndex.url_links,
-                AlbumsIndex.genre
-            ).join(
-                TrackVsSourceIndex, Tracks.id == TrackVsSourceIndex.track_id
-            ).join(
-                SourceTracks, TrackVsSourceIndex.source_track_id == SourceTracks.id
-            ).join(
-                SongTrackArtistIndex, Tracks.songtrack_artist_id == SongTrackArtistIndex.id
-            ).join(
-                ReleaseCircleIndex, Tracks.release_circle_id == ReleaseCircleIndex.id
-            ).join(
-                AlbumsIndex, Tracks.album_id == AlbumsIndex.id
-            ).filter(
-                Tracks.name.like(query)
-            ).order_by(
-                ReleaseCircleIndex.name
-            )
-            fetched_results = results.fetchall()
+        engine = create_engine("sqlite:///touhou-music.db")
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        
+        results = session.query(
+            Tracks.name,
+            SongTrackArtistIndex.name,
+            ReleaseCircleIndex.name,
+            AlbumsIndex.album_name,
+            AlbumsIndex.url_links,
+            AlbumsIndex.genre
+        ).join(
+            TrackVsSourceIndex, Tracks.id == TrackVsSourceIndex.track_id
+        ).join(
+            SourceTracks, TrackVsSourceIndex.source_track_id == SourceTracks.id
+        ).join(
+            SongTrackArtistIndex, Tracks.songtrack_artist_id == SongTrackArtistIndex.id
+        ).join(
+            ReleaseCircleIndex, Tracks.release_circle_id == ReleaseCircleIndex.id
+        ).join(
+            AlbumsIndex, Tracks.album_id == AlbumsIndex.id
+        ).filter(
+            Tracks.name.like(query)
+        ).order_by(
+            ReleaseCircleIndex.name
+        ).all()   # Fetch all results
+
+        session.close()
 
         csv_file = StringIO()
         writer = csv.writer(csv_file)
         writer.writerow(["Track Name", "Track Artist", "Album Artist", "Album Name", "URL", "Album Genre"])
-        writer.writerows(fetched_results)
+        writer.writerows(results)
         csv_file.seek(0)
         response = make_response(csv_file.getvalue())
         filename = f"{song_name}_results.csv"
@@ -156,7 +161,6 @@ def download_song_csv():
         return response
     else:
         return redirect(url_for('search_song'))
-
 
 
 @app.route('/download_csv/<int:source_track_id>', methods=['GET'])
@@ -247,7 +251,8 @@ def search2():
                     func.count(TrackVsSourceIndex.track_id).label('count')
                 ).join(
                     TrackVsSourceIndex, SourceTracks.id == TrackVsSourceIndex.source_track_id 
-                ).group_by(
+                ).filter(SourceTracks.id != 35)
+                .group_by(
                     SourceTracks.id
                 ).order_by(
                     desc('count')
