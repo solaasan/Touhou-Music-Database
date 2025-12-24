@@ -1,0 +1,7 @@
+{
+  "build": {
+    "command": "echo 'No build step required for static site'",
+    "output": "."
+  }
+}
+

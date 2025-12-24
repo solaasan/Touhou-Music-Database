@@ -1,0 +1,45 @@
+# Cloudflare Pages Headers Configuration
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+# Cache static assets aggressively (fingerprinted/hashed assets)
+/static/sql-wasm.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/sql-wasm.wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/styles.css
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/static/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache database file (it's large, so cache it well)
+/touhou-music.db
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# HTML files - shorter cache with revalidation
+/*.html
+  Cache-Control: public, max-age=3600, must-revalidate
+  X-Content-Type-Options: nosniff
+
+# Sitemap and robots - cache but allow revalidation
+/sitemap.xml
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/robots.txt
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# Security headers for all pages (but allow iframes as requested)
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# Allow CORS for static assets (in case needed)
+/static/*
+  Access-Control-Allow-Origin: *
+

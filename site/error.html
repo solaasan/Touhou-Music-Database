@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - touhou-music-db.zzj.ca Database</title>
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
+</head>
+<body>
+    <form action="index.html" method="get">
+        <button type="submit">Back</button>
+    </form>
+    <h2>OOPSIE WOOPSIE!! Uwu someone made a mistake or tried something they weren't supposed to</h2><br><br>
+    <h2>Fumos are deciding your fate><br>
+    <img src="static/fumocam.webp" alt="Fumos pointing a camera at you, suspicious"><br><br>
+    <div id="error-message"></div>
+    <script>
+        // Get error message from URL parameter or sessionStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get('message') || sessionStorage.getItem('errorMessage') || 'An error occurred';
+        document.getElementById('error-message').textContent = message;
+        sessionStorage.removeItem('errorMessage');
+    </script>
+</body>
+</html>
+

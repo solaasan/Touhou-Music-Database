@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /error.html
+
+Sitemap: https://touhou-music-db.zzj.ca/sitemap.xml

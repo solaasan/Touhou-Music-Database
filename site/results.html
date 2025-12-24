@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>Search Results - Touhou Music Database</title>
+    <meta name="description" content="Search results for Touhou doujinshi music. Browse tracks, artists, albums, and find source tracks.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://touhou-music-db.zzj.ca/results.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://touhou-music-db.zzj.ca/results.html">
+    <meta property="og:title" content="Search Results - Touhou Music Database">
+    <meta property="og:description" content="Search results for Touhou doujinshi music tracks, artists, and albums.">
+    <meta property="og:site_name" content="Touhou Music Database">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:url" content="https://touhou-music-db.zzj.ca/results.html">
+    <meta name="twitter:title" content="Search Results - Touhou Music Database">
+    <meta name="twitter:description" content="Search results for Touhou doujinshi music tracks, artists, and albums.">
+    
+    <!-- JSON-LD Structured Data (will be updated dynamically) -->
+    <script type="application/ld+json" id="structured-data">
+    {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Touhou Music Search Results",
+        "description": "Search results for Touhou doujinshi music",
+        "url": "https://touhou-music-db.zzj.ca/results.html"
+    }
+    </script>
+    
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
+    
+    <!-- Load sql.js - must load before modules -->
+    <script src="static/sql-wasm.js"></script>
+    <script>
+        // Wait for sql.js to be fully loaded before loading modules
+        (function() {
+            function loadModules() {
+                const moduleScripts = [
+                    'static/js/db.js',
+                    'static/js/search.js',
+                    'static/js/ui.js',
+                    'static/js/csv.js'
+                ];
+                
+                moduleScripts.forEach(src => {
+                    const s = document.createElement('script');
+                    s.type = 'module';
+                    s.src = src;
+                    document.body.appendChild(s);
+                });
+                
+                // Load the inline module code after modules are loaded
+                setTimeout(() => {
+                    const originalScript = document.getElementById('results-module-script');
+                    if (originalScript) {
+                        const inlineScript = document.createElement('script');
+                        inlineScript.type = 'module';
+                        inlineScript.textContent = originalScript.textContent;
+                        document.body.appendChild(inlineScript);
+                    }
+                }, 200);
+            }
+            
+            // Check if initSqlJs is available
+            function checkSqlJs() {
+                if (typeof initSqlJs !== 'undefined') {
+                    loadModules();
+                } else if (typeof window !== 'undefined' && window.initSqlJs) {
+                    loadModules();
+                } else {
+                    // Wait a bit and check again (max 10 seconds)
+                    const maxAttempts = 200;
+                    let attempts = 0;
+                    const checkInterval = setInterval(() => {
+                        attempts++;
+                        if (typeof initSqlJs !== 'undefined' || (typeof window !== 'undefined' && window.initSqlJs)) {
+                            clearInterval(checkInterval);
+                            loadModules();
+                        } else if (attempts >= maxAttempts) {
+                            clearInterval(checkInterval);
+                            const errorDiv = document.getElementById('error');
+                            if (errorDiv) {
+                                errorDiv.textContent = 'Failed to load database library. Please refresh the page.';
+                                errorDiv.style.display = 'block';
+                            }
+                        }
+                    }, 50);
+                }
+            }
+            
+            // Start checking after a short delay to let the script start loading
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', checkSqlJs);
+            } else {
+                setTimeout(checkSqlJs, 100);
+            }
+        })();
+    </script>
+</head>
+<body>
+    <form action="index.html" method="get">
+        <button type="submit">Back</button>
+    </form>
+    <a href="#" id="download-csv-link">Download CSV</a>
+    <table>
+        <tr>
+            <th>Track Name</th>
+            <th>Track Artist</th>
+            <th>Album Artist</th>
+            <th>Album Name</th>
+            <th>Album URL</th>
+            <th>Album Genre</th>
+        </tr>
+        <tbody id="results-body"></tbody>
+    </table>
+    <div id="loading" style="display: none;">Loading results...</div>
+    <div id="error" style="display: none; color: #f00;"></div>
+    <script type="module" id="results-module-script" style="display: none;">
+        import { exportToCSV } from './static/js/csv.js';
+        import { initDatabase, searchBySongName, searchBySourceTrackId } from './static/js/db.js';
+        import { showLoading, hideLoading, showError } from './static/js/ui.js';
+        
+        let results = [];
+        let query = '';
+        let searchType = 'id';
+        
+        // Get query parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlType = urlParams.get('type');
+        const urlQuery = urlParams.get('q');
+        
+        async function loadResults() {
+            try {
+                // If URL parameters exist, use them (for sharing)
+                if (urlType && urlQuery) {
+                    showLoading();
+                    searchType = urlType;
+                    query = decodeURIComponent(urlQuery);
+                    
+                    // Re-run the query from URL parameters
+                    await initDatabase();
+                    
+                    if (searchType === 'song') {
+                        results = await searchBySongName(query);
+                    } else if (searchType === 'id') {
+                        const sourceTrackId = parseInt(query, 10);
+                        if (!isNaN(sourceTrackId) && sourceTrackId <= 9999) {
+                            results = await searchBySourceTrackId(sourceTrackId);
+                        } else {
+                            throw new Error("Invalid source track ID");
+                        }
+                    }
+                    
+                    // Store in sessionStorage for future navigation
+                    sessionStorage.setItem('searchResults', JSON.stringify(results));
+                    sessionStorage.setItem('searchQuery', query);
+                    sessionStorage.setItem('searchType', searchType);
+                    
+                    hideLoading();
+                } else {
+                    // Fall back to sessionStorage (for direct navigation)
+                    const resultsJson = sessionStorage.getItem('searchResults');
+                    query = sessionStorage.getItem('searchQuery') || '';
+                    searchType = sessionStorage.getItem('searchType') || 'id';
+                    
+                    if (!resultsJson) {
+                        // No results found, redirect to home
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    
+                    results = JSON.parse(resultsJson);
+                }
+                
+                // Update URL if we loaded from sessionStorage (so it's shareable)
+                if (!urlType || !urlQuery) {
+                    const params = new URLSearchParams();
+                    params.set('type', searchType);
+                    params.set('q', encodeURIComponent(query));
+                    window.history.replaceState({}, '', `results.html?${params.toString()}`);
+                }
+                
+                renderResults();
+            } catch (error) {
+                console.error('Error loading results:', error);
+                showError(error.message || 'An error occurred while loading results');
+                hideLoading();
+            }
+        }
+        
+        function renderResults() {
+            const tbody = document.getElementById('results-body');
+            if (!tbody) return;
+            
+            if (results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No results found</td></tr>';
+                updateStructuredData([]);
+                return;
+            }
+            
+            // Render results
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${escapeHtml(result[0])}</td>
+                    <td>${escapeHtml(result[1])}</td>
+                    <td>${escapeHtml(result[2])}</td>
+                    <td>${escapeHtml(result[3])}</td>
+                    <td>${result[4] ? `<a href="${escapeHtml(result[4])}">Link</a>` : 'Not Available'}</td>
+                    <td>${result[5] ? escapeHtml(result[5]) : ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Update structured data with results
+            updateStructuredData(results);
+            
+            // Update page title and meta description
+            updatePageMetadata();
+            
+            // Set up CSV download
+            document.getElementById('download-csv-link').onclick = (e) => {
+                e.preventDefault();
+                exportToCSV(results, query, searchType);
+            };
+        }
+        
+        function updateStructuredData(results) {
+            const structuredDataEl = document.getElementById('structured-data');
+            if (!structuredDataEl) return;
+            
+            const itemListElement = results.map((result, index) => ({
+                "@type": "MusicRecording",
+                "position": index + 1,
+                "name": result[0] || "Unknown Track",
+                "byArtist": {
+                    "@type": "MusicGroup",
+                    "name": result[1] || "Unknown Artist"
+                },
+                "inAlbum": {
+                    "@type": "MusicAlbum",
+                    "name": result[3] || "Unknown Album",
+                    "byArtist": {
+                        "@type": "MusicGroup",
+                        "name": result[2] || "Unknown Album Artist"
+                    },
+                    "genre": result[5] || undefined
+                },
+                "url": result[4] || undefined
+            })).filter(item => item.name !== "Unknown Track");
+            
+            const structuredData = {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "name": `Touhou Music Search Results${query ? `: ${query}` : ''}`,
+                "description": `Search results for "${query}" in Touhou doujinshi music database. Found ${results.length} result${results.length !== 1 ? 's' : ''}.`,
+                "url": window.location.href,
+                "numberOfItems": results.length,
+                "itemListElement": itemListElement
+            };
+            
+            structuredDataEl.textContent = JSON.stringify(structuredData);
+        }
+        
+        function updatePageMetadata() {
+            // Update page title
+            const title = `Search Results${query ? `: ${query}` : ''} - Touhou Music Database`;
+            document.title = title;
+            
+            // Update meta description
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) {
+                metaDesc = document.createElement('meta');
+                metaDesc.setAttribute('name', 'description');
+                document.head.appendChild(metaDesc);
+            }
+            metaDesc.setAttribute('content', `Found ${results.length} result${results.length !== 1 ? 's' : ''} for "${query}" in Touhou doujinshi music database.`);
+            
+            // Update Open Graph tags
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) ogTitle.setAttribute('content', title);
+            
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            if (ogDesc) ogDesc.setAttribute('content', `Found ${results.length} result${results.length !== 1 ? 's' : ''} for "${query}"`);
+            
+            const ogUrl = document.querySelector('meta[property="og:url"]');
+            if (ogUrl) ogUrl.setAttribute('content', window.location.href);
+            
+            // Update Twitter tags
+            const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+            if (twitterTitle) twitterTitle.setAttribute('content', title);
+            
+            const twitterDesc = document.querySelector('meta[name="twitter:description"]');
+            if (twitterDesc) twitterDesc.setAttribute('content', `Found ${results.length} result${results.length !== 1 ? 's' : ''} for "${query}"`);
+        }
+        
+        function escapeHtml(text) {
+            if (text === null || text === undefined) {
+                return '';
+            }
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Load results when page loads
+        loadResults();
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,4 @@
+# Cloudflare Pages redirects
+# Serve index.html for all routes (SPA-like behavior)
+/*    /index.html   200
+
